@@ -8,18 +8,27 @@
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <!-- Bootstrap CSS -->
-    <link rel = "stylesheet" href= "{{ url('css/app.css')}}">
 
+
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link rel = "stylesheet" href= "{{ url('css/bootstrap.css')}}">
+    <link rel = "stylesheet" href= "{{ url('css/bootstrap.min.css')}}">
+    <link rel = "stylesheet" href= "{{ url('css/bootstrap-theme.css')}}">
+    <link rel = "stylesheet" href= "{{ url('css/app.css')}}">
     <link rel = "stylesheet" href= "{{ url('css/heatMap.css')}}">
+
+
+
+
   </head>
-  <body>
+  <body class="lead">
 
 
 
       <div class="container">
                       <div class="w-100 p-3">
                                     <div class="text-center">
-                                          <h1 class="display-3 mt-5"> Heatmap Analytic </h1>
+                                          <h1 class="display-3 mt-5 lead"> Heatmap Analytic </h1>
 
                                       </div>
                                     </div>
@@ -29,7 +38,7 @@
 
 
                           <!--form1 2calendar and search -->
-                          @if(count($dataInDB) > 0)
+
 
                                     <div class="w-100 p-3 h-100">
                                       <div class="w-25 p-3 float-left">
@@ -43,8 +52,9 @@
                                       <form class="form-inline" action="{{url('/search')}}" method="post">
                                           <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                           <div class="input-group mb-2 mr-sm-4 mb-sm-0">
-                                              <div class="input-group-addon" id="basic-addon1">From</div>
-                                                <input type="datetime-local"  id="time" value = "{{ $dateFrom }}" name="From">
+
+                                                @include('frome')
+
 
 
                                             </div>
@@ -52,8 +62,8 @@
 
                                           <div class="input-group mb-2 mr-sm-4 mb-sm-0">
                                               <div class="input-group">
-                                                  <div class="input-group-addon" id="basic-addon1">To  </div>
-                                                    <input type="datetime-local"  id="time" value = "{{ $dateTo }}" name="To">
+                                                  @include('to')
+
 
 
                                                 </div>
@@ -61,22 +71,31 @@
 
 
 
-                                              <button type="submit" class="btn btn-success" name="search">Search</button>
+                                              <button type="submit" class="btn btn-success" name="search"><h3>Search</h3></button>
 
                                       </form>
                                       <div class="text-center">
                                       @if ($errors->has('From'))
                                       <p>
-                                          <span class="help-block text-danger">
+                                          <span class="help-block text-danger h4">
                                               <strong>{{ $errors->first('From') }}</strong>
                                           </span>
                                       </p>
 
                                       @endif
+
                                       @if ($errors->has('To'))
                                             <p>
-                                          <span class="help-block text-danger">
+                                          <span class="help-block text-danger h4">
                                               <strong>{{ $errors->first('To') }}</strong>
+                                          </span>
+                                      </p>
+                                      @endif
+
+                                     @if (Session::has('message'))
+                                            <p>
+                                          <span class="help-block text-danger h4">
+                                              <strong>{{ Session::get('message') }}</strong>
                                           </span>
                                       </p>
                                       @endif
@@ -94,20 +113,20 @@
                                     </div>
                                     <br>
 
-                                    @endif
+
                                   <!--lable -->
 
 
                                     <div class="w-100 ">
 
 
-                                                      <p class="h4 ml-5 mt-5 pl-5 float-left">Color Scale</p>
+                                                      <p class="h3 ml-5 mt-5 pl-5 w-25 float-left text-center">Color Scale</p>
 
 
 
 
 
-                                                              <p class="h4 mr-5 mt-5 pr-5 float-right">Size adjusment</p>
+                                                              <p class="h3 mr-5 mt-5 pr-5 w-25 float-right text-center">Size adjusment</p>
 
 
 
@@ -120,27 +139,27 @@
                                     <div class="w-100 p-3">
                                             <!--left side -->
                                         <div class="w-50 float-left">
-
+                                            <h2>
                                             <div class="float-left mr-4">
-                                                <div class="border-0"><h5>Min</h5></div>
+                                                <div class="border-0">Min</div>
                                                 </div>
 
                                                     <div class="float-left ">
 
-                                                                <h4>
-                                                                    <span class="badge badge-primary">1</span>
-                                                                    <span class="badge badge-info">2</span>
-                                                                    <span class="badge badge-success">3</span>
-                                                                    <span class="badge badge-warning">4</span>
-                                                                    <span class="badge badge-danger">5</span>
 
-                                                                </h4>
+                                                                    <span id="one" class="badge badge-primary">{{ Session::get('first') }}%</span>
+                                                                    <span id="two" class="badge badge-info">{{ Session::get('secound') }}%</span>
+                                                                    <span id="three" class="badge badge-success">{{ Session::get('third') }}%</span>
+                                                                    <span id="four" class="badge badge-warning">{{ Session::get('fourth') }}%</span>
+                                                                    <span id="five"class="badge badge-danger">{{ Session::get('fiveth') }}%</span>
+
+
 
                                                     </div>
                                             <div class="float-left ml-4" >
-                                                        <div class= " border-0"><h5>Max</h5></div>
+                                                        <div class= " border-0">Max</div>
                                                 </div>
-
+                                            </h2>
 
 
 
@@ -153,7 +172,7 @@
                                             </div>
                                             <div class="w-50 float-right">
                                                 <div class="mx-auto">
-
+                                                </h3>
                                                     <div class="btn-group" data-toggle="buttons">
                                                           <label class="btn btn-secondary ">
                                                             <input type="radio" name="size" id="option1" autocomplete="off" value="1/2"> Small
@@ -165,6 +184,7 @@
                                                             <input type="radio" name="size" id="option3" autocomplete="off" value="2"> Large
                                                           </label>
                                                         </div>
+                                                </h3>
                                                 </div>
                                             </div>
 
@@ -225,12 +245,12 @@
                                             <form action="{{url('/importDatas')}}" method="post" enctype="multipart/form-data" >
                                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                     <div class="">
-                                                                <h4>Choose csv file</h4>
+                                                                <h2>Choose csv file</h2>
                                                                 <div class="input-group">
-                                                                    <label class="input-group-btn">
-                                                                        <span class="btn btn-secondary ">
-                                                                            Browse&hellip; <input type="file" style="display: none;"   name="csvFile" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-                                                                        </span>
+                                                                    <label class="btn btn-default btn-file ">
+
+                                                                        <h5>Browse&hellip;</h5>  <input class="h-50 mt-1"  id="my-file-selector" type="file" style="display: none;"   name="csvFile" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" hidden>
+
                                                                     </label>
 
                                                                     <input type="text" class="form-control h-50 w-100" readonly>
@@ -239,7 +259,7 @@
 
                                                                 <!-- errors in name  -->
                                                                         @if ($errors->has('csvFile'))
-                                                                            <span class="help-block text-danger">
+                                                                            <span class="help-block text-danger h4">
                                                                                 <strong>{{ $errors->first('csvFile') }}</strong>
                                                                             </span>
                                                                         @endif
@@ -251,11 +271,11 @@
 
                                             <div class="mt-5">
 
-                                                <button type="submit" class="btn btn-primary mr-1 h-50 w-25"   name = "btn-import" ><h5>Import</h5></button>
+                                                <button type="submit" class="btn btn-primary mr-1 h-50 w-25"   name = "btn-import" ><h3>Import</h3></button>
 
                                             </form>
                                                 <form action="{{url('/clearDatas')}}" method="post"   class="float-right pr-5 h-50 w-50">
-                                                    <button type="submit" class="btn btn-danger ml-1 h-100 w-100"  onclick="return confirm('Are you sure?')"><h5>Clear DB</h5></button>
+                                                    <button type="submit" class="btn btn-danger ml-1 h-100 w-100"  onclick="return confirm('Are you sure?')"><h3>Clear DB</h3></button>
                                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                 </form>
                                             </div>

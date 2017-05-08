@@ -1,6 +1,13 @@
 
     <script>
       window.onload = function() {
+          //get data stage
+          var first = parseFloat('{{ Session::get('first');}}')/100;
+          var secound = parseFloat('{{ Session::get('secound');}}')/100;
+          var third = parseFloat('{{ Session::get('third');}}')/100;
+          var fourth = parseFloat('{{ Session::get('fourth');}}')/100;
+          var fiveth = parseFloat('{{ Session::get('fiveth');}}')/100;
+
         // helper function
         function $(id) {
           return document.getElementById(id);
@@ -19,11 +26,12 @@
           gradient: {
                        // enter n keys between 0 and 1 here
                        // for gradient color customization
-                       '.0': 'white',
-                       '.6': 'blue',
-                       '.7': 'green',
-                       '.8': 'yellow',
-                       '.9': 'red'
+                       '.0': '#FFFFFF',
+                       first.toString(): '#0275d8',
+                       secound.toString(): '#5bc0de',
+                       third.toString(): '#5cb85c',
+                       fourth.toString(): '#f0ad4e',
+                       fiveth.toString(): '#d9534f'
                      },
 
 
@@ -47,7 +55,7 @@
 
           for (var i = 0; i < 64; i++) {
               for (var j = 0; j <64 ; j++) {
-                 var val = Math.floor(matrix[i][j]*1000);
+                 var val = Math.floor(matrix[i][j]*100);
                  max = Math.max(max, val);
                  var point = {
                      x: i,

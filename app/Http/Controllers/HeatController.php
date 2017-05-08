@@ -21,12 +21,15 @@ use App\Model\HeatMatrix;
 //for csv
 use Validator;
 use Excel;
+use Session;
 
 //for time
 use DateTime;
 use DatePeriod;
 use DateIntercal;
 use Carbon\Carbon;
+use App;
+
 
 //for compute matrix
 use MCordingley\LinearAlgebra\Matrix;
@@ -37,10 +40,25 @@ use Exception;
 class HeatController extends Controller
 {
 
-
+    public $first;
+    public $secound;
+    public $third;
+    public $fourth;
+    public $fiveth;
+        // init stage for compute color in heatmap
         public function __construct()
         {
+            $first=50;
+            $secound=60;
+            $third=70;
+            $fourth=80;
+            $fiveth=90;
 
+            Session::flash('first',$first );
+            Session::flash('secound', $secound);
+            Session::flash('third', $third);
+            Session::flash('fourth', $fourth);
+            Session::flash('fiveth', $fiveth);
 
 
         }
@@ -434,155 +452,181 @@ $rest = substr("abcdef", -3, 1); // returns "d"
         public function search(Request $request){
             //when sarch push
             //retrive form and to in DB
-            $dataInDB = CsvToDB::get();
-            $dateFrom = Carbon::parse($dataInDB[0]->from)->subSeconds(1)->format('d-m-Y H:i:s');
-            $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->addSeconds(1)->format('d-m-Y H:i:s');
 
-            if($request->exists('search'))
-                            {
+                    if (CsvToDB::get()->count() <= 0) {
 
-                                $validator = Validator::make($request->all(), [
-                                  //'csvFile'     => 'required|mimes:csv,txt',
-                                 'From'     => 'required|date|after:'.$dateFrom .'|before:'.$dateTo,
-                                 'To'     => 'required|date|after:'.$dateFrom .'|before:'.$dateTo,
-                               ]);
-                               if ($validator->fails())
-                               {
-                                   return redirect('/')
-                                               ->withErrors($validator)
-                                               ->withInput();
+                        Session::flash('message', "No result!!!");
+                        return redirect('/');
 
-                               }
-                               //get date form and date to
-                               else
-                               {
-                                   $from=Carbon::parse($request->From);
-                                   $to =Carbon::parse($request->To);
+                        }
 
-                                   //find  nearest time
-                                   $min_time =CsvToDB::where('from', '<=', $from)->orderBy('from', 'desc')->limit(1)->get();
-                                   $min = Carbon::parse($min_time[0]->from);
-                                   //$min =Carbon::parse($min_time->from);
-                                   $max_time = CsvToDB::where('to', '>=', $to)->orderBy('to', 'asc')->limit(1)->get() ;
-                                   $max = Carbon::parse($max_time[0]->to);
 
-                                   //get data in DB wich in this interval
-                                   $csv = new CsvToDB;
-                                   $data = $csv::where('from','>=',$min_time[0]->from)->where('to','<=',$max_time[0]->to)->get();
+                    elseif (CsvToDB::get()->count() > 0) {
 
-                                   // make array of heap matrix
-                                   $arrayMatrix=array();
+                            Session::flash('message', "");
+                            $dataInDB = CsvToDB::get();
+                            $dateFrom = Carbon::parse($dataInDB[0]->from)->subSeconds(1)->format('d-m-Y H:i:s');
+                            $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->addSeconds(1)->format('d-m-Y H:i:s');
 
-                                   foreach ($data as $csv) {
+                            if($request->exists('search'))
+                                    {
 
-                                           $array=array();
 
-                                           array_push ($array,
-                                           $csv->row0,$csv->row1,$csv->row2,$csv->row3,$csv->row4,$csv->row5,$csv->row6,$csv->row7,$csv->row8,$csv->row9
-                                           ,$csv->row10,$csv->row11,$csv->row12,$csv->row13,$csv->row14,$csv->row15,$csv->row16,$csv->row17,$csv->row18,$csv->row19
-                                           ,$csv->row20,$csv->row21,$csv->row22,$csv->row23,$csv->row24,$csv->row25,$csv->row26,$csv->row27,$csv->row28,$csv->row29
-                                           ,$csv->row30,$csv->row31,$csv->row32,$csv->row33,$csv->row34,$csv->row35,$csv->row36,$csv->row37,$csv->row38,$csv->row39
-                                           ,$csv->row40,$csv->row41,$csv->row42,$csv->row43,$csv->row44,$csv->row45,$csv->row46,$csv->row47,$csv->row48,$csv->row49
-                                           ,$csv->row50,$csv->row51,$csv->row52,$csv->row53,$csv->row54,$csv->row55,$csv->row56,$csv->row57,$csv->row58,$csv->row59
-                                           ,$csv->row60,$csv->row61,$csv->row62,$csv->row63
 
-                                           );
 
-                                           $heatMatrix = new HeatMatrix;
 
-                                           array_push ($arrayMatrix,$heatMatrix->create($array));
+                                        $validator = Validator::make($request->all(), [
+                                          //'csvFile'     => 'required|mimes:csv,txt',
+                                         'From'     => 'required|date|after_or_equal:'.$dateFrom .'|before_or_equal:'.$dateTo,
+                                         'To'     => 'required|date|after_or_equal:'.$dateFrom .'|before_or_equal:'.$dateTo,
+                                       ]);
+                                       if ($validator->fails())
+                                       {
+                                           return redirect('/')
+                                                       ->withErrors($validator)
+                                                       ->withInput();
+
                                        }
+                                       //get date form and date to
+                                       else
+                                       {
+                                           $from=Carbon::parse($request->From)->format('y/m/d h:m:s');
+                                           $to =Carbon::parse($request->To)->format('y/m/d h:m:s');
 
-                            //compute avg
-                                       //1.sum all matrix
+                                           //find  nearest time
+                                           $min_time =CsvToDB::where('from', '<=', $from)->orderBy('from', 'desc')->limit(1)->get();
+                                           $max_time = CsvToDB::where('to', '>=', $to)->orderBy('to', 'asc')->limit(1)->get() ;
 
-                                     $sum = $arrayMatrix[0];
+                                           //check it can get data from db realy?
+                                           if(isset($max_time[0]) && isset($min_time[0]))
+                                           {
+                                                       $max = Carbon::parse($max_time[0]->to);
+                                                       $min = Carbon::parse($min_time[0]->from);
 
-                                       for ($k=1; $k <count($arrayMatrix) ; $k++) {
-                                          // $item=new Matrix($arrayMatrix[$i]);
+                                                       //get data in DB wich in this interval
+                                                       $csv = new CsvToDB;
+                                                       $data = $csv::where('from','>=',$min_time[0]->from)->where('to','<=',$max_time[0]->to)->get();
 
-                                          // $sum = $sum->addMatrix($item);
+                                                       // make array of heap matrix
+                                                       $arrayMatrix=array();
 
-                                          for ($i=0; $i <64 ; $i++) {
-                                              for ($j=0; $j <64  ; $j++) {
+                                                       foreach ($data as $csv) {
 
-                                                  $sum[$i][$j] = $sum[$i][$j] + $arrayMatrix[$k][$i][$j];
-                                              }
-                                          }
-                                       }
-                                       //2.divide by count
+                                                               $array=array();
 
-                                       //$avgMatrix = $sum->multiplyScalar(1/$min->diffInMinutes($max));
-                                       $avgMatrix = array();
-                                       for ($i=0; $i < 64 ; $i++) {
-                                           for ($j=0; $j < 64 ; $j++) {
-                                               $avgMatrix[$i][$j] = $sum[$i][$j]/(1/$min->diffInMinutes($max));
-                                           }
-                                       }
-/*
-                                       //matrix to array
-                                        $matrix=array();
-                                        for ($row=0; $row < 64; $row++) {
-                                            $rowMatrix=array();
-                                            for ($column=0; $column < 64; $column++) {
-                                                $rowMatrix[]=$avgMatrix->get($row,$column);
+                                                               array_push ($array,
+                                                               $csv->row0,$csv->row1,$csv->row2,$csv->row3,$csv->row4,$csv->row5,$csv->row6,$csv->row7,$csv->row8,$csv->row9
+                                                               ,$csv->row10,$csv->row11,$csv->row12,$csv->row13,$csv->row14,$csv->row15,$csv->row16,$csv->row17,$csv->row18,$csv->row19
+                                                               ,$csv->row20,$csv->row21,$csv->row22,$csv->row23,$csv->row24,$csv->row25,$csv->row26,$csv->row27,$csv->row28,$csv->row29
+                                                               ,$csv->row30,$csv->row31,$csv->row32,$csv->row33,$csv->row34,$csv->row35,$csv->row36,$csv->row37,$csv->row38,$csv->row39
+                                                               ,$csv->row40,$csv->row41,$csv->row42,$csv->row43,$csv->row44,$csv->row45,$csv->row46,$csv->row47,$csv->row48,$csv->row49
+                                                               ,$csv->row50,$csv->row51,$csv->row52,$csv->row53,$csv->row54,$csv->row55,$csv->row56,$csv->row57,$csv->row58,$csv->row59
+                                                               ,$csv->row60,$csv->row61,$csv->row62,$csv->row63
+
+                                                               );
+
+                                                               $heatMatrix = new HeatMatrix;
+
+                                                               array_push ($arrayMatrix,$heatMatrix->create($array));
+                                                           }
+
+                                                           //compute avg
+                                                           //1.sum all matrix
+
+                                                         $sum = $arrayMatrix[0];
+
+                                                           for ($k=1; $k <count($arrayMatrix) ; $k++) {
+                                                              // $item=new Matrix($arrayMatrix[$i]);
+
+                                                              // $sum = $sum->addMatrix($item);
+
+                                                              for ($i=0; $i <64 ; $i++) {
+                                                                  for ($j=0; $j <64  ; $j++) {
+
+                                                                      $sum[$i][$j] = $sum[$i][$j] + $arrayMatrix[$k][$i][$j];
+                                                                  }
+                                                              }
+                                                           }
+                                                           //2.divide by count
+
+                                                           //$avgMatrix = $sum->multiplyScalar(1/$min->diffInMinutes($max));
+                                                           $avgMatrix = array();
+                                                           for ($i=0; $i < 64 ; $i++) {
+                                                               for ($j=0; $j < 64 ; $j++) {
+                                                                   $avgMatrix[$i][$j] = $sum[$i][$j]/(1/$min->diffInMinutes($max));
+                                                               }
+                                                           }
+                                                           /*
+                                                           //matrix to array
+                                                            $matrix=array();
+                                                            for ($row=0; $row < 64; $row++) {
+                                                                $rowMatrix=array();
+                                                                for ($column=0; $column < 64; $column++) {
+                                                                    $rowMatrix[]=$avgMatrix->get($row,$column);
+                                                                }
+                                                                $matrix[]=$rowMatrix;
+                                                            }
+
+                                                            */
+
+
+
+                                                      // return view('test',['matrix' => $matrix]);
+
+                                                       $dataInDB = CsvToDB::get();
+
+                                                       $arrayMatrix=array();
+
+                                                       foreach ($dataInDB as $csv) {
+
+                                                               $array=array();
+
+                                                               array_push ($array,
+                                                               $csv->row0,$csv->row1,$csv->row2,$csv->row3,$csv->row4,$csv->row5,$csv->row6,$csv->row7,$csv->row8,$csv->row9
+                                                               ,$csv->row10,$csv->row11,$csv->row12,$csv->row13,$csv->row14,$csv->row15,$csv->row16,$csv->row17,$csv->row18,$csv->row19
+                                                               ,$csv->row20,$csv->row21,$csv->row22,$csv->row23,$csv->row24,$csv->row25,$csv->row26,$csv->row27,$csv->row28,$csv->row29
+                                                               ,$csv->row30,$csv->row31,$csv->row32,$csv->row33,$csv->row34,$csv->row35,$csv->row36,$csv->row37,$csv->row38,$csv->row39
+                                                               ,$csv->row40,$csv->row41,$csv->row42,$csv->row43,$csv->row44,$csv->row45,$csv->row46,$csv->row47,$csv->row48,$csv->row49
+                                                               ,$csv->row50,$csv->row51,$csv->row52,$csv->row53,$csv->row54,$csv->row55,$csv->row56,$csv->row57,$csv->row58,$csv->row59
+                                                               ,$csv->row60,$csv->row61,$csv->row62,$csv->row63
+
+                                                               );
+
+                                                               $heatMatrix = new HeatMatrix;
+
+                                                               array_push ($arrayMatrix,$heatMatrix->create($array));
+                                                           }
+
+                                                       if (count($dataInDB)>0 && !empty($dataInDB)) {
+                                                           $dateFrom = Carbon::parse($dataInDB[0]->from)->format('dd/MM/yyyy hh:mm:ss');
+                                                           $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('dd/MM/yyyy hh:mm:ss');
+                                                           return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $avgMatrix]);
+                                                       }
+                                                       else{
+
+                                                           $dateFrom = "";
+                                                           $dateTo ="";
+                                                           return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom ,'dateTo'=>$dateTo ,'matrix' => $avgMatrix]);
+
+                                                       }
                                             }
-                                            $matrix[]=$rowMatrix;
-                                        }
-
-*/
 
 
-
-                                  // return view('test',['matrix' => $matrix]);
-
-                                   $dataInDB = CsvToDB::get();
-
-                                   $arrayMatrix=array();
-
-                                   foreach ($dataInDB as $csv) {
-
-                                           $array=array();
-
-                                           array_push ($array,
-                                           $csv->row0,$csv->row1,$csv->row2,$csv->row3,$csv->row4,$csv->row5,$csv->row6,$csv->row7,$csv->row8,$csv->row9
-                                           ,$csv->row10,$csv->row11,$csv->row12,$csv->row13,$csv->row14,$csv->row15,$csv->row16,$csv->row17,$csv->row18,$csv->row19
-                                           ,$csv->row20,$csv->row21,$csv->row22,$csv->row23,$csv->row24,$csv->row25,$csv->row26,$csv->row27,$csv->row28,$csv->row29
-                                           ,$csv->row30,$csv->row31,$csv->row32,$csv->row33,$csv->row34,$csv->row35,$csv->row36,$csv->row37,$csv->row38,$csv->row39
-                                           ,$csv->row40,$csv->row41,$csv->row42,$csv->row43,$csv->row44,$csv->row45,$csv->row46,$csv->row47,$csv->row48,$csv->row49
-                                           ,$csv->row50,$csv->row51,$csv->row52,$csv->row53,$csv->row54,$csv->row55,$csv->row56,$csv->row57,$csv->row58,$csv->row59
-                                           ,$csv->row60,$csv->row61,$csv->row62,$csv->row63
-
-                                           );
-
-                                           $heatMatrix = new HeatMatrix;
-
-                                           array_push ($arrayMatrix,$heatMatrix->create($array));
+                                            else{
+                                                return $from;
+                                            }
                                        }
 
-                                   if (count($dataInDB)>0 && !empty($dataInDB)) {
-                                       $dateFrom = Carbon::parse($dataInDB[0]->from)->format('Y-m-d')."T".Carbon::parse($dataInDB[0]->from)->format('H:i:s');
-                                       $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('Y-m-d')."T".Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('H:i:s');
-                                       return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $avgMatrix]);
-                                   }
-                                   else{
 
-                                       $dateFrom = "";
-                                       $dateTo ="";
-                                       return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $avgMatrix]);
 
-                                   }
+                        }
+                }
 
-                               }
+
+            }
 
 
 
-
-        }
-
-
-
-}
 
 
 
