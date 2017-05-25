@@ -27,11 +27,11 @@
                        // enter n keys between 0 and 1 here
                        // for gradient color customization
                        '.0': '#FFFFFF',
-                       first.toString(): '#0275d8',
-                       secound.toString(): '#5bc0de',
-                       third.toString(): '#5cb85c',
-                       fourth.toString(): '#f0ad4e',
-                       fiveth.toString(): '#d9534f'
+                       first.toString(): '#FFFFFF',
+                       secound.toString(): '#FFFFFF',
+                       third.toString(): '#FFFFFF',
+                       fourth.toString(): '#FFFFFF',
+                       fiveth.toString(): '#FFFFFF'
                      },
 
 

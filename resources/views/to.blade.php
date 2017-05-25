@@ -9,8 +9,13 @@
     <h3>
          To:
         <div id="datetimepicker1" class="input-append date">
+            @if(count($dateTo)>0)
+                <input type="text" name="To" class="input-lg" value="{{$dateTo}}"></input>
+          @endif
+          @if(count($dateTo)<=0)
+              <input type="text" name="To" class="input-lg" value=""></input>
+        @endif
 
-          <input type="text" name="To" class="input-lg"></input>
           <span class="add-on">
             <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
           </span>

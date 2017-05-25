@@ -15,7 +15,7 @@
     <link rel = "stylesheet" href= "{{ url('css/bootstrap.min.css')}}">
     <link rel = "stylesheet" href= "{{ url('css/bootstrap-theme.css')}}">
     <link rel = "stylesheet" href= "{{ url('css/app.css')}}">
-    <link rel = "stylesheet" href= "{{ url('css/heatMap.css')}}">
+    <link rel = "stylesheet" href= "{{ url('css/heatMap.css')}}?v=<?=time();?>">
 
 
 
@@ -147,11 +147,11 @@
                                                     <div class="float-left ">
 
 
-                                                                    <span id="one" class="badge badge-primary">{{ Session::get('first') }}%</span>
-                                                                    <span id="two" class="badge badge-info">{{ Session::get('secound') }}%</span>
-                                                                    <span id="three" class="badge badge-success">{{ Session::get('third') }}%</span>
-                                                                    <span id="four" class="badge badge-warning">{{ Session::get('fourth') }}%</span>
-                                                                    <span id="five"class="badge badge-danger">{{ Session::get('fiveth') }}%</span>
+                                                                    <span id="one" class="badge badge-primary">{{ $first }}%</span>
+                                                                    <span id="two" class="badge badge-info">{{ $secound  }}%</span>
+                                                                    <span id="three" class="badge badge-success">{{ $third }}%</span>
+                                                                    <span id="four" class="badge badge-warning">{{ $fourth }}%</span>
+                                                                    <span id="five"class="badge badge-danger">{{ $fiveth }}%</span>
 
 
 
@@ -173,6 +173,8 @@
                                             <div class="w-50 float-right">
                                                 <div class="mx-auto">
                                                 </h3>
+
+                                                @if(count($matrix) > 0)
                                                     <div class="btn-group" data-toggle="buttons">
                                                           <label class="btn btn-secondary ">
                                                             <input type="radio" name="size" id="option1" autocomplete="off" value="1/2"> Small
@@ -184,6 +186,26 @@
                                                             <input type="radio" name="size" id="option3" autocomplete="off" value="2"> Large
                                                           </label>
                                                         </div>
+
+                                                @endif
+
+                                                @if(count($matrix) <= 0)
+
+                                                <div class="btn-group" data-toggle="buttons">
+                                                      <label class="btn btn-secondary disabled">
+                                                        <input type="radio" name="size" id="option1" autocomplete="off" value="1/2" disabled> Small
+                                                      </label>
+                                                      <label class="btn btn-secondary active disabled">
+                                                        <input type="radio" name="size" id="option2"  autocomplete="off"   value="1" disabled> Medium
+                                                      </label>
+                                                      <label class="btn btn-secondary disabled">
+                                                        <input type="radio" name="size" id="option3" autocomplete="off" value="2" disabled> Large
+                                                      </label>
+                                                    </div>
+
+
+                                                @endif
+
                                                 </h3>
                                                 </div>
                                             </div>
@@ -224,7 +246,7 @@
 
 
                                              @else
-                                             <img src="{{asset('/img/fish.jpg')}}" width="100%" height="100%" >
+                                             <img src="{{asset('/img/fish.jpg')}}" width="100%" height="100%" id="img">
                                              </img>
 
                                              @endif
@@ -309,10 +331,16 @@
       <script type="text/javascript" src="{{ url('js/matrixToheatMap.js')}}" ></script>
     -->
 
-@if(count($matrix) > 0)
+    @if(count($matrix) > 0)
 
-      <script type="text/javascript" src="{{ url('js/size.js')}}" ></script>
- @endif
+          <script type="text/javascript" src="{{ url('js/size.js')}}" ></script>
+     @endif
+     @if(count($matrix) <= 0)
+
+           <script type="text/javascript" src="{{ url('js/size_img.js')}}" ></script>
+      @endif
+
+
       <script type="text/javascript" src="{{ url('js/select_file.js')}}" ></script>
     <!-- jQuery first, then Tether, then Bootstrap JS. -->
 

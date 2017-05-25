@@ -1,31 +1,54 @@
 <script src="{{url('js/build/heatmap.js')}}"></script>
     <script >
+
+
       window.onload = function() {
+
+          //get data stage
+          first     = '.'+(parseInt(JSON.parse('{{ json_encode($first) }}'))/10);
+          secound   = '.'+(parseInt(JSON.parse('{{ json_encode($secound) }}'))/10);
+          third     = '.'+(parseInt(JSON.parse('{{ json_encode($third) }}'))/10);
+          fourth    = '.'+(parseInt(JSON.parse('{{ json_encode($fourth) }}'))/10);
+          fiveth    = '.'+(parseInt(JSON.parse('{{ json_encode($fiveth) }}'))/10);
+
+          console.log(first);
+          console.log(secound);
+          console.log(third);
+          console.log(fourth);
+          console.log(fiveth);
+          console.log(typeof  first);
+
+
+         var config= {
+            container: document.getElementById('heatmapContainer'),
+            opacity:.6,
+            radius:3,
+            // this line makes datapoints unblurred
+            blur: 1,
+
+
+            gradient: {
+                         // enter n keys between 0 and 1 here
+                         '.0': '#FFFFFF',
+
+                       },
+
+
+          }
+
+         var gradient = config['gradient'];
+          gradient[first]   =$('#one').css('backgroundColor');
+          gradient[secound] =$('#two').css('backgroundColor');
+          gradient[third]   =$('#three').css('backgroundColor');
+          gradient[fourth]  =$('#four').css('backgroundColor');
+          gradient[fiveth]  =$('#five').css('backgroundColor');
+
+          console.log(config['gradient']);
 
 
 
         // create a heatmap instance
-        var heatmap = h337.create({
-          container: document.getElementById('heatmapContainer'),
-          opacity:.6,
-          radius:3,
-          // this line makes datapoints unblurred
-          blur: 1,
-
-
-          gradient: {
-                       // enter n keys between 0 and 1 here
-                       // for gradient color customization
-                       '.0': '#FFFFFF',
-                       '.3': '#0000FF',
-                       '.5': '#00BFFF',
-                       '.7': '#5cb85c',
-                       '.9': '#f0ad4e',
-                       '1' : '#d9534f'
-                     },
-
-
-        });
+        var heatmap = h337.create(config);
 
         // boundaries for data generation
         var width = 64;

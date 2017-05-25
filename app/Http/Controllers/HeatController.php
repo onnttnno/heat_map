@@ -48,18 +48,12 @@ class HeatController extends Controller
         // init stage for compute color in heatmap
         public function __construct()
         {
-            $first=50;
-            $secound=60;
-            $third=70;
-            $fourth=80;
-            $fiveth=90;
 
-            Session::flash('first',$first );
-            Session::flash('secound', $secound);
-            Session::flash('third', $third);
-            Session::flash('fourth', $fourth);
-            Session::flash('fiveth', $fiveth);
-
+            $this->first=50;
+            $this->secound=60;
+            $this->third=70;
+            $this->fourth=80;
+            $this->fiveth=90;
 
         }
 
@@ -93,17 +87,19 @@ class HeatController extends Controller
                 }
 
             if (count($dataInDB)>0 && !empty($dataInDB)) {
-                $dateFrom = Carbon::parse($dataInDB[0]->from)->format('Y-m-d')."T".Carbon::parse($dataInDB[0]->from)->format('H:i:s');
-                $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('Y-m-d')."T".Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('H:i:s');
+                $dateFrom = Carbon::parse($dataInDB[0]->from)->format('Y-m-d')." ".Carbon::parse($dataInDB[0]->from)->format('H:i');
+                $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('Y-m-d')." ".Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('H:i');
                 $matrix = array();
-                return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $matrix]);
+                return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $matrix,
+                'first' => $this->first,'secound' => $this->secound,'third' => $this->third,'fourth' => $this->fourth,'fiveth' => $this->fiveth]);
             }
             else{
 
                 $dateFrom = "";
                 $dateTo ="";
                 $matrix = array();
-                return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $matrix]);
+                return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $matrix,
+                'first' => $this->first,'secound' => $this->secound,'third' => $this->third,'fourth' => $this->fourth,'fiveth' => $this->fiveth]);
 
             }
 
@@ -465,8 +461,8 @@ $rest = substr("abcdef", -3, 1); // returns "d"
 
                             Session::flash('message', "");
                             $dataInDB = CsvToDB::get();
-                            $dateFrom = Carbon::parse($dataInDB[0]->from)->subSeconds(1)->format('d-m-Y H:i:s');
-                            $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->addSeconds(1)->format('d-m-Y H:i:s');
+                            $dateFrom = Carbon::parse($dataInDB[0]->from)->subSeconds(1)->format('Y-m-d H:i');
+                            $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->addSeconds(1)->format('Y-m-d H:i');
 
                             if($request->exists('search'))
                                     {
@@ -490,8 +486,8 @@ $rest = substr("abcdef", -3, 1); // returns "d"
                                        //get date form and date to
                                        else
                                        {
-                                           $from=Carbon::parse($request->From)->format('y/m/d h:m:s');
-                                           $to =Carbon::parse($request->To)->format('y/m/d h:m:s');
+                                           $from=Carbon::parse($request->From)->format('y/m/d h:m');
+                                           $to =Carbon::parse($request->To)->format('y/m/d h:m');
 
                                            //find  nearest time
                                            $min_time =CsvToDB::where('from', '<=', $from)->orderBy('from', 'desc')->limit(1)->get();
@@ -598,15 +594,17 @@ $rest = substr("abcdef", -3, 1); // returns "d"
                                                            }
 
                                                        if (count($dataInDB)>0 && !empty($dataInDB)) {
-                                                           $dateFrom = Carbon::parse($dataInDB[0]->from)->format('dd/MM/yyyy hh:mm:ss');
-                                                           $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('dd/MM/yyyy hh:mm:ss');
-                                                           return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $avgMatrix]);
+                                                           $dateFrom = Carbon::parse($dataInDB[0]->from)->format('Y-m-d h:m');
+                                                           $dateTo =Carbon::parse($dataInDB[count($dataInDB) -1]->to)->format('Y-m-d h:m');
+                                                           return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom,'dateTo'=>$dateTo,'matrix' => $avgMatrix ,
+                                                          'first' => $this->first,'secound' => $this->secound,'third' => $this->third,'fourth' => $this->fourth,'fiveth' => $this->fiveth]);
                                                        }
                                                        else{
 
                                                            $dateFrom = "";
                                                            $dateTo ="";
-                                                           return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom ,'dateTo'=>$dateTo ,'matrix' => $avgMatrix]);
+                                                           return view('heat_map',['dataInDB' => $dataInDB,'dateFrom'=>$dateFrom ,'dateTo'=>$dateTo ,'matrix' => $avgMatrix ,
+                                                           'first' => $this->first,'secound' => $this->secound,'third' => $this->third,'fourth' => $this->fourth,'fiveth' => $this->fiveth]);
 
                                                        }
                                             }

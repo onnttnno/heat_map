@@ -1,3 +1,30 @@
+
+/* color in heatmap*/
+#one{
+
+        background-color:#0275d8;
+}
+
+#two{
+
+        background-color:#5bc0de;
+}
+
+#three{
+
+        background-color:#5cb85c;
+}
+
+#four{
+
+        background-color:#f0ad4e;
+}
+
+#five{
+
+        background-color:#d9534f;
+}
+
 .dropdown-menu { font-size: 1.5em; }
 body{font-size: 1.5em;}
 

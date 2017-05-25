@@ -8,8 +8,14 @@
   <body class="lead">
     <h3> From:
     <div id="datetimepicker" class="input-append date">
+        @if(count($dateFrom)>0)
+        <input type="text" name="From" value="{{ $dateFrom }}"></input>
+        @endif
+        
+        @if(count($dateFrom)<=0)
+        <input type="text" name="From" ></input>
+        @endif
 
-      <input type="text" name="From" ></input>
       <span class="add-on">
         <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
       </span>
